@@ -50,9 +50,29 @@ private:
     void postHook();
     void allDone();
 
-    static quint32 makeBranchOpcode(quint32 src, quint32 dest, bool link);
+    static quint32 makeBranchOpcode(quint32 src, quint32 dest, bool link, quint32 condition);
 
 private:
+    enum Opcode_Con 
+    { 
+        Opcode_EQ, 
+        Opcode_NE, 
+        Opcode_CS, 
+        Opcode_CC, 
+        Opcode_MI, 
+        Opcode_PL, 
+        Opcode_VS, 
+        Opcode_VC,
+        Opcode_HI,
+        Opcode_LS,
+        Opcode_GE,
+        Opcode_LT,
+        Opcode_GT,
+        Opcode_LE,
+        Opcode_None
+    };
+
+    Opcode_Con m_opcodecon;
     bool m_pathValid;
     QString m_path;
 

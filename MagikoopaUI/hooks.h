@@ -25,7 +25,7 @@ protected:
     Hook() {}
     void base(HookLinker* parent, HookInfo* info);
 
-    static quint32 makeBranchOpcode(quint32 src, quint32 dest, bool link);
+    static quint32 makeBranchOpcode(quint32 src, quint32 dest, bool link, quint32 condition);
     static quint32 offsetOpcode(quint32 opcode, quint32 orgPosition, qint32 newPosition);
 
     QString m_name;
@@ -44,6 +44,26 @@ public:
     void writeData(FileBase* file, quint32 extraDataPos);
 
 private:
+    enum Opcode_Con 
+    { 
+        Opcode_EQ, 
+        Opcode_NE, 
+        Opcode_CS, 
+        Opcode_CC, 
+        Opcode_MI, 
+        Opcode_PL, 
+        Opcode_VS, 
+        Opcode_VC,
+        Opcode_HI,
+        Opcode_LS,
+        Opcode_GE,
+        Opcode_LT,
+        Opcode_GT,
+        Opcode_LE,
+        Opcode_None
+    };
+
+    Opcode_Con m_opcodecon;
     bool m_link;
     quint32 m_destination;
 };
@@ -57,8 +77,27 @@ public:
 
 private:
     enum Opcode_Pos { Opcode_Ignore, Opcode_Pre, Opcode_Post };
+    enum Opcode_Con 
+    { 
+        Opcode_EQ, 
+        Opcode_NE, 
+        Opcode_CS, 
+        Opcode_CC, 
+        Opcode_MI, 
+        Opcode_PL, 
+        Opcode_VS, 
+        Opcode_VC,
+        Opcode_HI,
+        Opcode_LS,
+        Opcode_GE,
+        Opcode_LT,
+        Opcode_GT,
+        Opcode_LE,
+        Opcode_None
+    };
 
     Opcode_Pos m_opcodePos;
+    Opcode_Con m_opcodecon;
     quint32 m_destination;
 };
 

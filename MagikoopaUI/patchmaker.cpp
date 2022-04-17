@@ -430,9 +430,60 @@ void PatchMaker::allDone()
     emit updateStatus("All done");
 }
 
-quint32 PatchMaker::makeBranchOpcode(quint32 src, quint32 dest, bool link)
+quint32 PatchMaker::makeBranchOpcode(quint32 src, quint32 dest, bool link, quint32 condition)
 {
-    quint32 ret = 0xEA000000;
+    quint32 ret;
+    switch (condition)
+    {
+        case 0:
+            ret = 0x0A000000;
+            break;
+        case 1:
+            ret = 0x1A000000;
+            break;
+        case 2:
+            ret = 0x2A000000;
+            break;
+        case 3:
+            ret = 0x3A000000;
+            break;
+        case 4:
+            ret = 0x4A000000;
+            break;
+        case 5:
+            ret = 0x5A000000;
+            break;
+        case 6:
+            ret = 0x6A000000;
+            break;
+        case 7:
+            ret = 0x7A000000;
+            break;
+        case 8:
+            ret = 0x8A000000;
+            break;
+        case 9:
+            ret = 0x9A000000;
+            break;
+        case 10:
+            ret = 0xAA000000;
+            break;
+        case 11:
+            ret = 0xBA000000;
+            break;
+        case 12:
+            ret = 0xCA000000;
+            break;
+        case 13:
+            ret = 0xDA000000;
+            break;
+        case 14:
+            ret = 0xEA000000;
+            break;
+        default:
+            ret = 0xEA000000;
+    }
+    
     if (link) ret |= 0x01000000;
 
     int offset = (dest / 4) - (src / 4) - 2;

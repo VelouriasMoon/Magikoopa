@@ -1,9 +1,60 @@
 #include "hooks.h"
 #include "hooklinker.h"
 
-quint32 Hook::makeBranchOpcode(quint32 src, quint32 dest, bool link)
+quint32 Hook::makeBranchOpcode(quint32 src, quint32 dest, bool link, quint32 condition)
 {
-    quint32 ret = 0xEA000000;
+    quint32 ret;
+    switch (condition)
+    {
+        case 0:
+            ret = 0x0A000000;
+            break;
+        case 1:
+            ret = 0x1A000000;
+            break;
+        case 2:
+            ret = 0x2A000000;
+            break;
+        case 3:
+            ret = 0x3A000000;
+            break;
+        case 4:
+            ret = 0x4A000000;
+            break;
+        case 5:
+            ret = 0x5A000000;
+            break;
+        case 6:
+            ret = 0x6A000000;
+            break;
+        case 7:
+            ret = 0x7A000000;
+            break;
+        case 8:
+            ret = 0x8A000000;
+            break;
+        case 9:
+            ret = 0x9A000000;
+            break;
+        case 10:
+            ret = 0xAA000000;
+            break;
+        case 11:
+            ret = 0xBA000000;
+            break;
+        case 12:
+            ret = 0xCA000000;
+            break;
+        case 13:
+            ret = 0xDA000000;
+            break;
+        case 14:
+            ret = 0xEA000000;
+            break;
+        default:
+            ret = 0xEA000000;
+    }
+
     if (link) ret |= 0x01000000;
 
     int offset = (dest / 4) - (src / 4) - 2;
@@ -117,12 +168,51 @@ BranchHook::BranchHook(HookLinker* parent, HookInfo* info)
         if (!ok)
             throw new HookExeption(info, QString("Invalid branch destination \"%1\"").arg(info->get("dest")));
     }
+
+    if (info->has("cond"))
+    {
+        QString opcodePosStr = info->get("cond").toLower();
+        if (opcodePosStr == "eq")
+            m_opcodecon = Opcode_EQ;
+        else if (opcodePosStr == "ne")
+            m_opcodecon = Opcode_NE;
+        else if (opcodePosStr == "cs")
+            m_opcodecon = Opcode_CS;
+        else if (opcodePosStr == "cc")
+            m_opcodecon = Opcode_CC;
+        else if (opcodePosStr == "mi")
+            m_opcodecon = Opcode_MI;
+        else if (opcodePosStr == "pl")
+            m_opcodecon = Opcode_PL;
+        else if (opcodePosStr == "vs")
+            m_opcodecon = Opcode_VS;
+        else if (opcodePosStr == "vc")
+            m_opcodecon = Opcode_VC;
+        else if (opcodePosStr == "hi")
+            m_opcodecon = Opcode_HI;
+        else if (opcodePosStr == "ls")
+            m_opcodecon = Opcode_LS;
+        else if (opcodePosStr == "ge")
+            m_opcodecon = Opcode_GE;
+        else if (opcodePosStr == "lt")
+            m_opcodecon = Opcode_LT;
+        else if (opcodePosStr == "gt")
+            m_opcodecon = Opcode_GT;
+        else if (opcodePosStr == "le")
+            m_opcodecon = Opcode_LE;
+        else if (opcodePosStr == "none")
+            m_opcodecon = Opcode_None;
+        else
+            throw new HookExeption(info, QString("Invalid branch condition \"%1\"").arg(info->get("cond")));
+    }
+    else
+        m_opcodecon = Opcode_None;
 }
 
 void BranchHook::writeData(FileBase* file, quint32)
 {
     file->seek(m_address - 0x00100000);
-    file->write32(makeBranchOpcode(m_address, m_destination, m_link));
+    file->write32(makeBranchOpcode(m_address, m_destination, m_link, m_opcodecon));
 }
 
 
@@ -167,6 +257,45 @@ SoftBranchHook::SoftBranchHook(HookLinker* parent, HookInfo* info)
     }
     else
         m_opcodePos = Opcode_Ignore;
+
+    if (info->has("cond"))
+    {
+        QString opcodePosStr = info->get("cond").toLower();
+        if (opcodePosStr == "eq")
+            m_opcodecon = Opcode_EQ;
+        else if (opcodePosStr == "ne")
+            m_opcodecon = Opcode_NE;
+        else if (opcodePosStr == "cs")
+            m_opcodecon = Opcode_CS;
+        else if (opcodePosStr == "cc")
+            m_opcodecon = Opcode_CC;
+        else if (opcodePosStr == "mi")
+            m_opcodecon = Opcode_MI;
+        else if (opcodePosStr == "pl")
+            m_opcodecon = Opcode_PL;
+        else if (opcodePosStr == "vs")
+            m_opcodecon = Opcode_VS;
+        else if (opcodePosStr == "vc")
+            m_opcodecon = Opcode_VC;
+        else if (opcodePosStr == "hi")
+            m_opcodecon = Opcode_HI;
+        else if (opcodePosStr == "ls")
+            m_opcodecon = Opcode_LS;
+        else if (opcodePosStr == "ge")
+            m_opcodecon = Opcode_GE;
+        else if (opcodePosStr == "lt")
+            m_opcodecon = Opcode_LT;
+        else if (opcodePosStr == "gt")
+            m_opcodecon = Opcode_GT;
+        else if (opcodePosStr == "le")
+            m_opcodecon = Opcode_LE;
+        else if (opcodePosStr == "none")
+            m_opcodecon = Opcode_None;
+        else
+            throw new HookExeption(info, QString("Invalid branch condition \"%1\"").arg(info->get("cond")));
+    }
+    else
+        m_opcodecon = Opcode_None;
 }
 
 void SoftBranchHook::writeData(FileBase* file, quint32 extraDataPtr)
@@ -174,15 +303,15 @@ void SoftBranchHook::writeData(FileBase* file, quint32 extraDataPtr)
     file->seek(m_address - 0x00100000);
     quint32 originalOpcode = file->read32();            // This breaks position dependent opcodes
     file->seek(m_address - 0x00100000);
-    file->write32(makeBranchOpcode(m_address, extraDataPtr, false));
+    file->write32(makeBranchOpcode(m_address, extraDataPtr, false, m_opcodecon));
 
     file->seek(extraDataPtr - 0x00100000);
     if (m_opcodePos == Opcode_Pre) file->write32(offsetOpcode(originalOpcode, m_address, file->pos() + 0x00100000));
     file->write32(0xE92D5FFF);      //push {r0-r12, r14}
-    file->write32(makeBranchOpcode(file->pos() + 0x00100000, m_destination, true));
+    file->write32(makeBranchOpcode(file->pos() + 0x00100000, m_destination, true, m_opcodecon));
     file->write32(0xE8BD5FFF);      //pop {r0-r12, r14}
     if (m_opcodePos == Opcode_Post) file->write32(offsetOpcode(originalOpcode, m_address, file->pos() + 0x00100000));
-    file->write32(makeBranchOpcode(file->pos() + 0x00100000, m_address + 4, false));
+    file->write32(makeBranchOpcode(file->pos() + 0x00100000, m_address + 4, false, m_opcodecon));
 }
 
 

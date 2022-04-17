@@ -59,6 +59,8 @@ void Hook::base(HookLinker* parent, HookInfo* info)
 
     if (info->has("symb"))
     {
+        if (!info->has("symb"))
+            throw new HookExeption(info, "No Symbol given");
 
         bool ok;
         m_address = parent->symTable()->get(info->get("symb"), &ok);

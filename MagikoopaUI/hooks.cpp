@@ -57,10 +57,27 @@ void Hook::base(HookLinker* parent, HookInfo* info)
 
     QString addrKey = "addr";
 
-    if (!info->has(addrKey))
-        throw new HookExeption(info, "No address given");
+    if (info->has("symb"))
+    {
 
-    m_address = info->getUint("addr");
+        bool ok;
+        m_address = parent->symTable()->get(info->get("symb"), &ok);
+
+        if (!ok)
+            throw new HookExeption(info, QString("Function name \"%1\" not found").arg(info->get("func")));
+
+        if (info->has(addrKey))
+        {
+            m_address = m_address + info->getUint("addr");
+        }
+    }
+    else
+    {
+        if (!info->has(addrKey))
+            throw new HookExeption(info, "No address given");
+
+        m_address = info->getUint("addr");
+    }
 
     if (m_address < 0x100000)
         throw new HookExeption(info, QString("Invalid address \"%1\"").arg(info->get("addr")));

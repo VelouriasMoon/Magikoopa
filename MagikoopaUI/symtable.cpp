@@ -21,7 +21,7 @@ void SymTable::load(QString path)
         line = read.readLine();
         line.replace('\t', ' ');
 
-        QStringList segs = line.split(' ', QString::SkipEmptyParts);
+        QStringList segs = line.split(' ', Qt::SkipEmptyParts);
         if (segs.count() < 3) continue;
         bool ok;
 

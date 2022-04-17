@@ -191,7 +191,7 @@ void MainWindow::on_issues_doubleClicked(const QModelIndex& index)
 
     commandString = commandString.mid(idx+1);
 
-    QStringList args = commandString.split(" ", QString::SkipEmptyParts);
+    QStringList args = commandString.split(" ", Qt::SkipEmptyParts);
 
     QProcess* textEditor = new QProcess(this);
     textEditor->startDetached(command, args);

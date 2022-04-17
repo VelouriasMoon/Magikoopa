@@ -39,11 +39,19 @@ The following parameters are common to all hook types:
 | - | - |
 | addr | Hook address |
 
+or if there's symbols defined in you source code those names plus an offset can be used instead
+
+| Parameter | Description |
+| - | - |
+| symb | Symbol name. This will be converted to an address using the symbol table. |
+| addr | Optional offset for symbol |
+
 #### Branch hooks
 
 | Parameter | Description |
 | - | - |
 | link | `true` to make a BL instruction, `false` for B |
+| cond | Adds conditions like eq or ne to the branch | 
 | func | (1) Branch destination function name. This will be converted to an address using the symbol table. |
 | dest | (2) Branch destination address |
 
@@ -53,6 +61,7 @@ link and one of func and dest are required parameters.
 
 | Parameter | Description |
 | - | - |
+| cond | Adds conditions like eq or ne to the branch | 
 | func | (1) Branch destination function name. This will be converted to an address using the symbol table. |
 | dest | (2) Branch destination address |
 | opcode | "pre", "post" or "ignore". Defaults to "ignore" if not specified. "pre" to branch to func/dest after the original instruction, "post" to branch before the original instruction. |
